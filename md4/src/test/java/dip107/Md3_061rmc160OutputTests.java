@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,19 +55,23 @@ public class Md3_061rmc160OutputTests {
                     "the filling mode prompt should be the second line outputted! Output had lines: " + output.length);
     }
 
+    int g(Random r) {
+        return r.nextInt(491) + 10;
+    }
+
     @ParameterizedTest
     @ValueSource(ints = { 1, 2, 3 })
     public void shouldPrintResultTitle(int input) throws Exception {
         byteArrayOutputStream = new ByteArrayOutputStream();
-        String t = Float.toString(input);
-        runTest(getSimulatedUserInput(t), ObjectUnderTestName);
+        String t =formSimulatedUserInput(input);
+        runTest(t, ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
-        Boolean hasOutItem = output.length > 3, hadCount = false;
+        Boolean hasOutItem = output.length > 2, hadCount = false;
         if (hasOutItem) {
             // kaa jaabuut? "a=result:"-> ja in dos \r\n "result:"-> ja formateshu lai
             // butu \r\n...
-            for (int i = 3; i < output.length; i++) {
-                if (output[i].matches("^result:")) {
+            for (int i = 2; i < output.length; i++) {
+                if (output[i].matches("^result:.*")) {
                     hadCount = true;
                     break;
                 }
@@ -83,19 +88,19 @@ public class Md3_061rmc160OutputTests {
     @ValueSource(ints = { 1, 2, 3 })
     public void shouldPrintResultTiitles(int input) throws Exception {
         byteArrayOutputStream = new ByteArrayOutputStream();
-        runTest(getSimulatedUserInput(input + ""), ObjectUnderTestName);
+        runTest(formSimulatedUserInput(input), ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
 
         Boolean hadResult = false, hadNumbers = false, hadCount = false;
-        Boolean hasOutItem = output.length > 3;
+        Boolean hasOutItem = output.length > 2;
         assertTrue(hasOutItem, "shohuld output more than 3 lines.");
         // kaa jaabuut? 2-> ja in dos \r\n 3-> ja formateshu lai butu \r\n...
-        for (int i = 3; i < output.length; i++) {
-            if (output[i].matches("^count:"))
+        for (int i = 2; i < output.length; i++) {
+            if (output[i].matches("^count:.*"))
                 hadCount = true;
-            else if (output[i].matches("^result:"))
+            else if (output[i].matches("^result:.*"))
                 hadResult = true;
-            else if (output[i].matches("^numbers:"))
+            else if (output[i].matches("^numbers:.*"))
                 hadNumbers = true;
             if (hadResult && hadNumbers && hadCount)
                 break;
@@ -165,6 +170,17 @@ public class Md3_061rmc160OutputTests {
     // region utils
     private String getSimulatedUserInput(String... inputs) {
         return String.join(System.getProperty("line.separator"), inputs) + System.getProperty("line.separator");
+    }
+
+    private String formSimulatedUserInput(int input){
+        String t =input+System.getProperty("line.separator");
+        if(input == 1){
+            t+= System.getProperty("line.separator");
+            Random r = new Random(1200);
+            for(int i=0; i<5*8; i++)
+                t+= g(r)+System.getProperty("line.separator");
+        }
+        return t;
     }
 
     private void runTest(String data, String className) throws Exception {
