@@ -124,8 +124,8 @@ public class Md3_061rmc160OutputTests {
             return;
         String arrPattern = vart.getArrayOutputPattern();
         if (hasOutItems) {
-            for (int i = 2; i <= 2 + defaultArray.length; i++) {
-                if (hadItemsCount > defaultArray.length)
+            for (int i = 2; i < output.length; i++) {
+                if (hadItemsCount == defaultArray.length)
                     return;
                 if (hadItemsCount > 0) {
                     assertTrue(output[i].matches(arrPattern),

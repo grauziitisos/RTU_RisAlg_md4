@@ -1,4 +1,8 @@
 package dip107;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MdVariant {
     int preLastNumber;
     public int getPreLastNumber(){
@@ -18,7 +22,7 @@ public class MdVariant {
             return "(-1|1?[0-9]|20\\s+){"+(numCols-1)+"}(-1|1?[0-9]|20)";
             case 6:
             case 7:
-            return "(10|[1-4]?[2-9][0-9]|[1-4][0-2][0-9]|500\\s+){"+(numCols-1)+"}(10|[1-4]?[2-9][0-9]|[1-4][0-2][0-9]|500)";
+            return "((10|[1-4]?[2-9][0-9]|[1-4][0-2][0-9]|500)\\s+){"+(numCols-1)+"}(10|[1-4]?[2-9][0-9]|[1-4][0-2][0-9]|500)";
             case 8:
             case 9:
             return "(10|[0-9]\\s+){"+(numCols-1)+"}(10|[0-9])";
@@ -91,7 +95,11 @@ public class MdVariant {
             }
     };
     public MdVariant(String ObjectUnderTestName){
-        if(ObjectUnderTestName.indexOf("_", 0)>0)
-        preLastNumber = Integer.parseInt(ObjectUnderTestName.split("_")[1].split("(\\d{3})(\\S{3})(\\d)(\\d)(\\d)")[3]);
+        if(ObjectUnderTestName.indexOf("_", 0)>0){
+            Pattern p = Pattern.compile("(\\d{3})(\\S{3})(\\d)(\\d)(\\d)");
+Matcher m = p.matcher(ObjectUnderTestName.split("_")[1]);
+m.find();
+        preLastNumber = Integer.parseInt(m.group(4));
+        }
     }
 }
