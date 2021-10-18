@@ -128,7 +128,8 @@ public class Md3_061rmc160OutputTests {
                 if (hadItemsCount == defaultArray.length)
                     return;
                 if (hadItemsCount > 0) {
-                    assertTrue(output[i].matches(arrPattern),
+                    //allow whitespaces
+                    assertTrue(output[i].trim().matches(arrPattern),
                             "Line number " + (i + 1) + System.getProperty("line.separator") + "Should output result: "
                                     + vart.getDefaultArray()[0].length
                                     + " numbers per line and number range required in specification!"
@@ -136,7 +137,7 @@ public class Md3_061rmc160OutputTests {
                                     + System.getProperty("line.separator"));
                     hadItemsCount++;
                 } else {
-                    if (output[i].matches(arrPattern))
+                    if (output[i].trim().matches(arrPattern))
                         hadItemsCount = 1;
                 }
             }
