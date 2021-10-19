@@ -1,10 +1,8 @@
 package dip107;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -39,7 +37,7 @@ public class Md4_061rmc160 {
     }
 
     // public static String errorInputMessage = "Nepareizs ievads! Jāievada {0}";
-    public static String errorInputMessage = "input-output error";
+    public static final String ERRORINPUTMESSAGE = "input-output error";
 
     public static void testableMain(InputStream inputStream, PrintStream outputStream) {
         Scanner sc = new Scanner(inputStream);
@@ -49,7 +47,7 @@ public class Md4_061rmc160 {
         outputStream.println("061RMC160 Oskars Grauzis 4");
         outputStream.println("Kā aizpildīt masīvu (1, 2 vai 3)?");
         if (!sc.hasNext("1|2|3")) {
-            outputStream.println(String.format(errorInputMessage, "izvēli vienu no trim iespējām : 1 vai 2 vai 3"));
+            outputStream.println(String.format(ERRORINPUTMESSAGE, "izvēli vienu no trim iespējām : 1 vai 2 vai 3"));
             sc.close();
             return;
         }
@@ -58,6 +56,11 @@ public class Md4_061rmc160 {
             return;
         ArrayList<Integer> numbers = new ArrayList<Integer>();
         int hadFlag = 0, maxFlag = 0;
+        /*If the promoted type of the left-hand operand is int, only the five lowest-order bits of the 
+        right-hand operand are used as the shift distance. It is as if the right-hand operand were 
+        subjected to a bitwise logical AND operator & (§15.22.1) with the mask value 0x1f (0b11111).
+         The shift distance actually used is therefore always in the range 0 to 31, inclusive.*/
+         //man te ir 5, tātad kā reizi limita robežās!
         for (byte i = 0; i < dbArr[0].length; i++)
             maxFlag = maxFlag | (1 << i);
         // region masiva izvade un rezultatu izlase
@@ -119,11 +122,11 @@ public class Md4_061rmc160 {
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 5; j++) {
                     outputStream.println(String.format("Ievadiet veselu skaitli 10-250 : %1$s"+
-                    ".rinda un %2$s. kolona", i+1, j+1));
-                    if (sc.hasNext("(10|[1-4]?[2-9][0-9]|[1-2][0-9]|[1-4][0-2][0-9]|500)"))
+                    ".rinda un %2$s. kolona - vai vairākus šādus skaitļus atdalot ar atstarp:i", i+1, j+1));
+                    if (sc.hasNext("((500|[1-4]0[0-9]|[1-4]?[1-9][0-9]))"))
                         result[i][j] = sc.nextInt();
                     else {
-                        outputStream.println(errorInputMessage);
+                        outputStream.println(ERRORINPUTMESSAGE);
                         sc.close();
                         return new int[][] {};
                     }

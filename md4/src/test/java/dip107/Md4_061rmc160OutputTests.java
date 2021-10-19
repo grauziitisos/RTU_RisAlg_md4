@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class Md3_061rmc160OutputTests {
+public class Md4_061rmc160OutputTests {
     private ByteArrayOutputStream byteArrayOutputStream;
     private String ObjectUnderTestName = "dip107.Md4_061rmc160";
     private String WrongInputErrorMessage = "input-output error";
@@ -156,7 +156,7 @@ public class Md3_061rmc160OutputTests {
 
     @ParameterizedTest
     @ValueSource(strings = { "fas", "-+1", "š", "0.0.0.0", "8k8", "4", "10" })
-    public void shouldTellWrongInput(String input) throws Exception {
+    public void shouldTellWrongMenuInput(String input) throws Exception {
         byteArrayOutputStream = new ByteArrayOutputStream();
         runTest(getSimulatedUserInput(input + ""), ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
