@@ -33,7 +33,74 @@ import java.util.stream.Collectors;
  */
 public class Md4_061rmc160 {
     public static void main(String[] args) {
-        testableMain(System.in, System.out);
+        // testableMain(System.in, System.out);
+        Scanner sc = new Scanner(System.in);
+        int x = Integer.parseInt(args[0]), y = Integer.parseInt(args[1]);
+        // x = sc.nextInt();
+        // y = sc.nextInt();
+        sc.close();
+        int[][] a = new int[x][y];
+        if (x <= 0 || y <= 0)
+            return;
+        // TODO: aizpildīt masīvu a
+        int c = 1, lc = 0;
+        int mx = x * y;
+        fillArray(a);
+        // break;
+        // lc++;
+        // }
+        // x-c==c
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                // + i+"|"+j+
+                System.out.print(String.format("%1$4s", a[i][j]));
+            }
+            System.out.println();
+        }
+    }
+
+    private static void fillArray(int[][] a) {
+        int x = a.length, y = a[0].length, c;
+        // 1x1+ -->
+        for (c = 1; c <= y; c++)
+            a[0][c-1] = c;
+        for (int k = 1; k < x; k++) {
+            if (k % 2 == 1) {
+                if (x > k && y > k - 1) {
+                    // [k+1]x[k]
+                    // |
+                    // v
+                    for (int j = y - (k + 1) / 2, i = (k + 1) / 2; i <= x - (k + 1) / 2; i++) {
+                        a[i][j] = c;
+                        c++;
+                    }
+                    // [k+1]x[k+1]+ <<---
+                    if (y > k)
+                        for (int i = x - (k + 1) / 2, j = y - 1 - (k + 1) / 2; j >= (k + 1) / 2-1; j--) {
+                            a[i][j] = c;
+                            c++;
+                        }
+                }
+            } else {
+                // [k+1]x[k]
+                // ^
+                // |
+                if (x > k && y > k-1) {
+                    for (int j = ((k-2) / 2), i = x - (k / 2+1); i >= (k / 2); i--) {
+                        a[i][j] = c;
+                        c++;
+                    }
+                    // [k+1]x[k+1]+->>
+                    if (y > k) {
+                        for (int i = (k / 2), j = (k / 2); j < y - (k / 2); j++) {
+                            a[i][j] = c;
+                            c++;
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     // public static String errorInputMessage = "Nepareizs ievads! Jāievada {0}";
@@ -56,11 +123,14 @@ public class Md4_061rmc160 {
             return;
         ArrayList<Integer> numbers = new ArrayList<Integer>();
         int hadFlag = 0, maxFlag = 0;
-        /*If the promoted type of the left-hand operand is int, only the five lowest-order bits of the 
-        right-hand operand are used as the shift distance. It is as if the right-hand operand were 
-        subjected to a bitwise logical AND operator & (§15.22.1) with the mask value 0x1f (0b11111).
-         The shift distance actually used is therefore always in the range 0 to 31, inclusive.*/
-         //man te ir 5, tātad kā reizi limita robežās!
+        /*
+         * If the promoted type of the left-hand operand is int, only the five
+         * lowest-order bits of the right-hand operand are used as the shift distance.
+         * It is as if the right-hand operand were subjected to a bitwise logical AND
+         * operator & (§15.22.1) with the mask value 0x1f (0b11111). The shift distance
+         * actually used is therefore always in the range 0 to 31, inclusive.
+         */
+        // man te ir 5, tātad kā reizi limita robežās!
         for (byte i = 0; i < dbArr[0].length; i++)
             maxFlag = maxFlag | (1 << i);
         // region masiva izvade un rezultatu izlase
@@ -95,34 +165,23 @@ public class Md4_061rmc160 {
 
     static int[][] getArray(byte mode, Scanner sc, PrintStream outputStream) {
         if (mode == 3)
-            return new int[][] { 
-            { 250, 300, 250, 250, 250 }, 
-            { 100, 50, 60, 70, 200 }, 
-            { 250, 100, 70, 150, 200 },
-            { 300, 400, 200, 250, 300 }, 
-            { 400, 320, 250, 220, 270 }, 
-            { 200, 200, 200, 200, 200 },
-            { 250, 260, 250, 250, 250 }, 
-            { 250, 200, 100, 250, 80 } 
-            };
+            return new int[][] { { 250, 300, 250, 250, 250 }, { 100, 50, 60, 70, 200 }, { 250, 100, 70, 150, 200 },
+                    { 300, 400, 200, 250, 300 }, { 400, 320, 250, 220, 270 }, { 200, 200, 200, 200, 200 },
+                    { 250, 260, 250, 250, 250 }, { 250, 200, 100, 250, 80 } };
         Random r = new Random();
         if (mode == 2)
-            return new int[][] { 
-                { g(r), g(r), g(r), g(r), g(r) }, 
-                { g(r), g(r), g(r), g(r), g(r) },
-                { g(r), g(r), g(r), g(r), g(r) }, 
-                { g(r), g(r), g(r), g(r), g(r) },
-                { g(r), g(r), g(r), g(r), g(r) }, 
-                { g(r), g(r), g(r), g(r), g(r) },
-                { g(r), g(r), g(r), g(r), g(r) }, 
-                { g(r), g(r), g(r), g(r), g(r) } 
-                };
+            return new int[][] { { g(r), g(r), g(r), g(r), g(r) }, { g(r), g(r), g(r), g(r), g(r) },
+                    { g(r), g(r), g(r), g(r), g(r) }, { g(r), g(r), g(r), g(r), g(r) },
+                    { g(r), g(r), g(r), g(r), g(r) }, { g(r), g(r), g(r), g(r), g(r) },
+                    { g(r), g(r), g(r), g(r), g(r) }, { g(r), g(r), g(r), g(r), g(r) } };
         if (mode == 1) {
             int[][] result = new int[8][5];
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 5; j++) {
-                    outputStream.println(String.format("Ievadiet veselu skaitli 10-250 : %1$s"+
-                    ".rinda un %2$s. kolona - vai vairākus šādus skaitļus atdalot ar atstarp:i", i+1, j+1));
+                    outputStream.println(String.format(
+                            "Ievadiet veselu skaitli 10-250 : %1$s"
+                                    + ".rinda un %2$s. kolona - vai vairākus šādus skaitļus atdalot ar atstarp:i",
+                            i + 1, j + 1));
                     if (sc.hasNext("((500|[1-4]0[0-9]|[1-4]?[1-9][0-9]))"))
                         result[i][j] = sc.nextInt();
                     else {
