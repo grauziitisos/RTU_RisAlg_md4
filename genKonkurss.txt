@@ -1,0 +1,7 @@
+Editor.currentView.file--;
+currentView.text= "c:";
+currentView.text+= "cd '\\Users\\oskar\\source\\repos\\Md4\\md4'";
+
+for(var i=14;i<20;i++)
+for(var j=1;j<5;j++)
+currentView.text += "\\JAVA\\jdk-18\\bin\\java.exe -Dfile.encoding=UTF-8 -cp \\Users\\oskar\\source\\repos\\Md4\\md4\\target\\classes dip107.Md4_061rmc160"+" "+i+" "+j+"\r\n";
