@@ -33,75 +33,9 @@ import java.util.stream.Collectors;
  */
 public class Md4_061rmc160 {
     public static void main(String[] args) {
-        // testableMain(System.in, System.out);
-        Scanner sc = new Scanner(System.in);
-        int x = Integer.parseInt(args[0]), y = Integer.parseInt(args[1]);
-        // x = sc.nextInt();
-        // y = sc.nextInt();
-        sc.close();
-        int[][] a = new int[x][y];
-        if (x <= 0 || y <= 0)
-            return;
-        // TODO: aizpildīt masīvu a
-        int c = 1, lc = 0;
-        int mx = x * y;
-        fillArray(a);
-        // break;
-        // lc++;
-        // }
-        // x-c==c
-        for (int i = 0; i < a.length; i++) {
-            for (int j = 0; j < a[i].length; j++) {
-                // + i+"|"+j+
-                System.out.print(String.format("%1$4s", a[i][j]));
-            }
-            System.out.println();
-        }
+         testableMain(System.in, System.out);
     }
 
-    private static void fillArray(int[][] a) {
-        int x = a.length, y = a[0].length, c;
-        // 1x1+ -->
-        for (c = 1; c <= y; c++)
-            a[0][c-1] = c;
-        for (int k = 1; k < x; k++) {
-            if (k % 2 == 1) {
-                if (x > k && y > k - 1) {
-                    // [k+1]x[k]
-                    // |
-                    // v
-                    for (int j = y - (k + 1) / 2, i = (k + 1) / 2; i <= x - (k + 1) / 2; i++) {
-                        a[i][j] = c;
-                        c++;
-                    }
-                    // [k+1]x[k+1]+ <<---
-                    if (y > k)
-                        for (int i = x - (k + 1) / 2, j = y - 1 - (k + 1) / 2; j >= (k + 1) / 2-1; j--) {
-                            a[i][j] = c;
-                            c++;
-                        }
-                }
-            } else {
-                // [k+1]x[k]
-                // ^
-                // |
-                if (x > k && y > k-1) {
-                    for (int j = ((k-2) / 2), i = x - (k / 2+1); i >= (k / 2); i--) {
-                        a[i][j] = c;
-                        c++;
-                    }
-                    // [k+1]x[k+1]+->>
-                    if (y > k) {
-                        for (int i = (k / 2), j = (k / 2); j < y - (k / 2); j++) {
-                            a[i][j] = c;
-                            c++;
-                        }
-                    }
-                }
-            }
-        }
-
-    }
 
     // public static String errorInputMessage = "Nepareizs ievads! Jāievada {0}";
     public static final String ERRORINPUTMESSAGE = "input-output error";
