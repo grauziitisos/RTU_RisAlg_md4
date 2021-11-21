@@ -68,8 +68,6 @@ public class Md4_061rmc160OutputTests {
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
         Boolean hasOutItem = output.length > 2, hadCount = false;
         if (hasOutItem) {
-            // kaa jaabuut? "a=result:"-> ja in dos \r\n "result:"-> ja formateshu lai
-            // butu \r\n...
             for (int i = 2; i < output.length; i++) {
                 if (output[i].matches("^result:.*")) {
                     hadCount = true;
@@ -94,7 +92,6 @@ public class Md4_061rmc160OutputTests {
         Boolean hadResult = false, hadNumbers = false, hadCount = false;
         Boolean hasOutItem = output.length > 2;
         assertTrue(hasOutItem, "shohuld output more than 3 lines.");
-        // kaa jaabuut? 2-> ja in dos \r\n 3-> ja formateshu lai butu \r\n...
         for (int i = 2; i < output.length; i++) {
             if (output[i].matches("^count:.*"))
                 hadCount = true;
