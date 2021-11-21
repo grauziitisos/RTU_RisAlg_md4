@@ -14,6 +14,12 @@ interface strInstrOut {
     public String process(String in) throws Exception;
 }
 
+
+@FunctionalInterface
+interface markRowMaker {
+    public Number[] makeMarkRow(int rowLength, Random r) throws Exception;
+}
+
 public class LastVarFactory {
     TestUtils tu;
     strInstrOut method ;
@@ -22,25 +28,32 @@ public class LastVarFactory {
     public LastVarFactory(TestUtils ttu, strInstrOut hook){this.tu = ttu; this.method = hook;};
     
     public void ExecTest() throws Exception{
+        markRowMaker mk;
+        mk = (rowLength, r)->{
+            Number[] result = new Number[rowLength];
+            for(int i=0; i<rowLength; i++)
+            result[i] = r.nextInt(251) + 250;
+            return result;
+        };
         switch (tu.var.preLastNumber){
             case 0:
             case 1:
             switch (tu.var.lastNumber){
                 case 0:
                 case 5:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 1:
                 case 6:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 2:
                 case 7:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 3:
                 case 8:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 4:
                 case 9:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 default:
                 return;
             }
@@ -49,19 +62,19 @@ public class LastVarFactory {
             switch (tu.var.lastNumber){
                 case 0:
                 case 5:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 1:
                 case 6:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 2:
                 case 7:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 3:
                 case 8:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 4:
                 case 9:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 default:
                 return;
             }
@@ -70,19 +83,19 @@ public class LastVarFactory {
             switch (tu.var.lastNumber){
                 case 0:
                 case 5:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 1:
                 case 6:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 2:
                 case 7:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 3:
                 case 8:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 4:
                 case 9:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 default:
                 return;
             }
@@ -91,19 +104,25 @@ public class LastVarFactory {
             switch (tu.var.lastNumber){
                 case 0:
                 case 5:
-                v67_05();
+                mk = (rowLength, r)->{
+                    Number[] result = new Number[rowLength];
+                    for(int i=0; i<rowLength; i++)
+                    result[i] = r.nextInt(251) + 250;
+                    return result;
+                };
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 1:
                 case 6:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 2:
                 case 7:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 3:
                 case 8:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 4:
                 case 9:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 default:
                 return;
             }
@@ -112,19 +131,19 @@ public class LastVarFactory {
             switch (tu.var.lastNumber){
                 case 0:
                 case 5:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 1:
                 case 6:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 2:
                 case 7:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 3:
                 case 8:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 case 4:
                 case 9:
-                v67_05();
+                shouldFulFillLastNumberRequirementsRunner(mk);
                 default:
                 return;
             }
@@ -132,15 +151,8 @@ public class LastVarFactory {
             return;
         }
     }
-    Number[] makeMarkRow(int rowLength, Random r){
-        Number[] result = new Number[rowLength];
-        for(int i=0; i<rowLength; i++)
-        result[i] = r.nextInt(251) + 250;
-        return result;
-    }
 
-    void v67_05() throws Exception{
-        boolean isdbl = (tu.var.preLastNumber == 2 || tu.var.preLastNumber == 3);
+    void shouldFulFillLastNumberRequirementsRunner(markRowMaker mk) throws Exception{
         Number[][] defaultArray = tu.getArrSource(-1);
         Random r = new Random(1500);
         int mrkCnt = r.nextInt(defaultArray.length)+1;
@@ -151,7 +163,7 @@ public class LastVarFactory {
             checkRows.add(cRow);
         }
         for(int j : checkRows)
-            defaultArray[j] = makeMarkRow(defaultArray[0].length, r);
+            defaultArray[j] = mk.makeMarkRow(defaultArray[0].length, r);
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<defaultArray.length; i++){
         sb = TestUtils.join(sb, " ", defaultArray[i]);
