@@ -100,7 +100,7 @@ public class Md4_061rmc160InputTests {
    // @ParameterizedTest
    // @ValueSource(strings = { "fas", "-+1", "š", "0.0.0.0", "8k8", "4", "9", "0.5", "", "501", "Inf" })
    @Test 
-   public void shouldOutputAtLeastKnownHighers(/*String input*/) throws Exception {
+   public void shouldFulfillLastNumberRequirements(/*String input*/) throws Exception {
     byteArrayOutputStream = new ByteArrayOutputStream();
     strInstrOut m = (String inp) ->{
         runTest(getSimulatedUserInput(inp), ObjectUnderTestName);
