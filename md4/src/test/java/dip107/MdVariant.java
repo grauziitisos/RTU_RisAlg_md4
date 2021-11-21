@@ -183,7 +183,6 @@ void testWithCsvSource(int[] first) {
     //assertNotEquals("2", second);
 }*/
 public Num getInputArrSource(int mode){
-    Random r = new Random();
     switch(mode){
         case 1:
         Num t = genRandomArray();
