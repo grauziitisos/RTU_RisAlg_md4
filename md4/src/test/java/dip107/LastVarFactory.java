@@ -132,20 +132,26 @@ public class LastVarFactory {
             return;
         }
     }
+    Number[] makeMarkRow(int rowLength, Random r){
+        Number[] result = new Number[rowLength];
+        for(int i=0; i<rowLength; i++)
+        result[i] = r.nextInt(251) + 250;
+        return result;
+    }
 
     void v67_05() throws Exception{
         boolean isdbl = (tu.var.preLastNumber == 2 || tu.var.preLastNumber == 3);
-        int[][] inputArr = new int[8][5];
         Number[][] defaultArray = tu.getArrSource(-1);
         Random r = new Random(1500);
+        int mrkCnt = r.nextInt(defaultArray.length)+1;
         ArrayList<Integer> checkRows = new ArrayList<Integer>();
-        for(int n : new int[]{1,3,4})
-            checkRows.add(n);
-        for(int i=0; i<defaultArray[0].length; i++){
-            defaultArray[1][i] = r.nextInt(251) + 250;
-            defaultArray[3][i] = r.nextInt(251) + 250;
-            defaultArray[4][i] = r.nextInt(251) + 250;
+        int cRow = r.nextInt(defaultArray.length);
+        for(int n =0; n<mrkCnt; n++){
+            while(checkRows.contains(cRow)) cRow = r.nextInt(defaultArray.length);
+            checkRows.add(cRow);
         }
+        for(int j : checkRows)
+            defaultArray[j] = makeMarkRow(defaultArray[0].length, r);
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<defaultArray.length; i++){
         sb = TestUtils.join(sb, " ", defaultArray[i]);
