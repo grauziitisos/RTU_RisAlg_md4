@@ -1,0 +1,14 @@
+T_LastVarFactory.java
+T_Md4_InputTests.java
+T_Md4_OutputTests.java
+T_MdVariant.java
+T_Num.java
+T_TestUtils.java
+
+
+Replace:
+
+T_([^\.]+)\..+
+
+
+echo namespace genTestMd4 >> T_\1\.cs\r\necho { >> T_\1\.cs\r\necho     internal class T_\1 : T_ZZZdipBase >> T_\1\.cs\r\necho     { >> T_\1\.cs\r\necho         public static string FN =^> P + "\\\\\1\.java"; >> T_\1\.cs\r\necho         new public static string C\(StudInfo si\) >> T_\1\.cs\r\necho         { >> T_\1\.cs\r\necho             return @^" >> T_\1\.cs\r\necho ^"; >> T_\1\.cs\r\necho         } >> T_\1\.cs\r\necho     } >> T_\1\.cs\r\necho } >> T_\1\.cs\r\n
