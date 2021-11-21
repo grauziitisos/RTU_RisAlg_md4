@@ -29,7 +29,7 @@ interface uniformIntNumberGenerator {
 
 @FunctionalInterface
 interface atLeastnthIntNumberGenerator {
-    public Number[] generate(IntSupplier supplier1, IntSupplier supplier2, IntSupplier supplier3, int limit, Random r, boolean returnConstant) throws Exception;
+    public Number[] generate(IntSupplier supplier1, IntSupplier supplier2, IntSupplier supplier3, int limit, Random r, boolean returnConstant, int itemCount) throws Exception;
 }
 
 public class LastVarFactory {
@@ -54,18 +54,36 @@ public class LastVarFactory {
             .boxed()
             .toArray(Number[]::new);
         };
-        atLeastnthIntNumberGenerator alLast1 =(supplier1, supplier2, supplier3, limit, r, returnConstant)->{
+        // a bit of resource saving if only 1 item
+        atLeastnthIntNumberGenerator alLeast1 =(supplier1, supplier2, supplier3, limit, r, returnConstant, itemCount)->{
             Number[] result = new Number[limit];
-            if(returnConstant) {
-                    int markNumber = r.nextInt(limit);
-                    result[markNumber] = supplier1.getAsInt();
-                    for(int i=0; i<limit; i++)
-                    if(i!=markNumber)
+            int markNumber = r.nextInt(limit);
+            result[markNumber] = supplier1.getAsInt();
+            for(int i=0; i<limit; i++)
+            if(i!=markNumber)
+                if(returnConstant)
                     result[i] = supplier2.getAsInt();
-            }else
-                for(int i=0; i<limit; i++)
-                result[i] = supplier3.getAsInt();
-                return result;
+                else
+                    result[i] = supplier3.getAsInt();            
+            return result;
+        };
+
+        atLeastnthIntNumberGenerator alLeastnth =(supplier1, supplier2, supplier3, limit, r, returnConstant, itemCount)->{
+            Number[] result = new Number[limit];
+            ArrayList<Integer> checkMarks = new ArrayList<Integer>();
+            int markNumber = r.nextInt(limit);
+            for(int n =0; n<itemCount; n++){
+                while(checkMarks.contains(markNumber)) markNumber = r.nextInt(limit);
+                checkMarks.add(markNumber);
+                result[markNumber] = supplier1.getAsInt();
+            }  
+            for(int i=0; i<limit; i++)
+                if(!checkMarks.contains(i))
+                    if(returnConstant)
+                        result[i] = supplier2.getAsInt();
+                    else
+                        result[i] = supplier3.getAsInt();
+            return result;
         };
         switch (tu.var.preLastNumber){
             // no diapazona [1; 30]
@@ -190,17 +208,17 @@ public class LastVarFactory {
                 case 2:
                 case 7:
                 mk = (rowLength, r, returnConstant)->{
-                Number[] result = new Number[rowLength];
-                if(returnConstant) {
-                        int markNumber = r.nextInt(rowLength);
-                        result[markNumber] = 250;
-                        for(int i=0; i<rowLength; i++)
-                        if(i!=markNumber)
-                        result[i] = r.nextInt(240)+10;
-                }else
-                    for(int i=0; i<rowLength; i++)
-                    result[i] = r.nextInt(240) + 10;
-                    return result;
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 250,
+                        () -> r.nextInt(240)+10,
+                        () -> r.nextInt(240)+10,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
                 };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
@@ -208,16 +226,17 @@ public class LastVarFactory {
                 case 3:
                 case 8:
                 mk = (rowLength, r, returnConstant)->{
-                    Number[] result = new Number[rowLength];
-                    int markNumber = r.nextInt(rowLength);
-                    result[markNumber] = r.nextInt(240)+10;
-                            for(int i=0; i<rowLength; i++)
-                            if(i!=markNumber)
-                            if(returnConstant)
-                            result[i] = r.nextInt(251)+250;
-                            else
-                            result[i] = r.nextInt(491)+10;
-                        return result;
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> r.nextInt(240)+10,
+                        () -> r.nextInt(251)+250,
+                        () -> r.nextInt(491)+10,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
                     };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
@@ -225,20 +244,18 @@ public class LastVarFactory {
                 case 4:
                 case 9:
                 mk = (rowLength, r, returnConstant)->{
-                    Number[] result = new Number[rowLength];
-                    int markNumber = r.nextInt(rowLength);
-                    int markNumber2 = r.nextInt(rowLength);
-                    while(markNumber == markNumber2) markNumber2 = r.nextInt(rowLength);
-                    result[markNumber] = r.nextInt(240)+10;
-                    result[markNumber2] = r.nextInt(240)+10;
-                            for(int i=0; i<rowLength; i++)
-                            if(i!=markNumber && i!=markNumber2)
-                            if(returnConstant)
-                            result[i] = r.nextInt(251)+250;
-                            else
-                            result[i] = r.nextInt(491)+10;
-                        return result;
-                    };
+                    return alLeastnth
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> r.nextInt(240)+10,
+                        () -> r.nextInt(251)+250,
+                        () -> r.nextInt(491)+10,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        2
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
                 default:
@@ -257,21 +274,21 @@ public class LastVarFactory {
                 };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
-                //could merge all the "at least one" in one general function...
                 //kas nenokārtoja vismaz vienu eksāmenu.
                 case 1:
                 case 6:
                 mk = (rowLength, r, returnConstant)->{
-                    Number[] result = new Number[rowLength];
-                    int markNumber = r.nextInt(rowLength);
-                    result[markNumber] = r.nextInt(4);
-                            for(int i=0; i<rowLength; i++)
-                            if(i!=markNumber)
-                            if(returnConstant)
-                            result[i] = r.nextInt(4);
-                            else
-                            result[i] = r.nextInt(11);
-                        return result;
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> r.nextInt(4),
+                        () -> r.nextInt(4),
+                        () -> r.nextInt(11),
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
                     };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
@@ -279,13 +296,17 @@ public class LastVarFactory {
                 case 2:
                 case 7:
                 mk = (rowLength, r, returnConstant)->{
-                    Number[] result = new Number[rowLength];
-                    int markNumber = r.nextInt(rowLength);
-                    result[markNumber] = 10;
-                            for(int i=0; i<rowLength; i++)
-                            if(i!=markNumber)
-                            result[i] = r.nextInt(11);
-                        return result;
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 10,
+                        () -> r.nextInt(11),
+                        () -> r.nextInt(11),
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
                     };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
@@ -293,22 +314,17 @@ public class LastVarFactory {
                 case 3:
                 case 8:
                 mk = (rowLength, r, returnConstant)->{
-                    Number[] result = new Number[rowLength];
-                    int markNumber = r.nextInt(rowLength);
-                    int markNumber2 = r.nextInt(rowLength);
-                    int markNumber3 = r.nextInt(rowLength);
-                    while(markNumber == markNumber2) markNumber2 = r.nextInt(rowLength);
-                    while(markNumber3 == markNumber2 || markNumber == markNumber3) markNumber3 = r.nextInt(rowLength);
-                    result[markNumber] = r.nextInt(4);
-                    result[markNumber2] = r.nextInt(4);
-                    result[markNumber3] = r.nextInt(4);
-                            for(int i=0; i<rowLength; i++)
-                            if(i!=markNumber && i!=markNumber2 && i!=markNumber3)
-                            if(returnConstant)
-                            result[i] = r.nextInt(4);
-                            else
-                            result[i] = r.nextInt(11);
-                        return result;
+                    return alLeastnth
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> r.nextInt(4),
+                        () -> r.nextInt(4),
+                        () -> r.nextInt(11),
+                        rowLength,
+                        r,
+                        returnConstant,
+                        3
+                    );
                     };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
