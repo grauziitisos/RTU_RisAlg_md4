@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 @FunctionalInterface
@@ -28,8 +30,18 @@ interface uniformIntNumberGenerator {
 }
 
 @FunctionalInterface
+interface uniformDoubleNumberGenerator {
+    public Number[] generate(DoubleSupplier supplier, int limit) throws Exception;
+}
+
+@FunctionalInterface
 interface atLeastnthIntNumberGenerator {
     public Number[] generate(IntSupplier supplier1, IntSupplier supplier2, IntSupplier supplier3, int limit, Random r, boolean returnConstant, int itemCount) throws Exception;
+}
+
+@FunctionalInterface
+interface atLeastnthDoubleNumberGenerator {
+    public Number[] generate(DoubleSupplier supplier1, DoubleSupplier supplier2, DoubleSupplier supplier3, int limit, Random r, boolean returnConstant, int itemCount) throws Exception;
 }
 
 public class LastVarFactory {
@@ -49,6 +61,13 @@ public class LastVarFactory {
         };
         uniformIntNumberGenerator intGen= (supplier, limit)->{
             return IntStream
+            .generate(supplier)
+            .limit(limit)
+            .boxed()
+            .toArray(Number[]::new);
+        };
+        uniformDoubleNumberGenerator doubleGen= (supplier, limit)->{
+            return DoubleStream
             .generate(supplier)
             .limit(limit)
             .boxed()
@@ -85,6 +104,24 @@ public class LastVarFactory {
                         result[i] = supplier3.getAsInt();
             return result;
         };
+
+        atLeastnthDoubleNumberGenerator alLeastnthDouble =(supplier1, supplier2, supplier3, limit, r, returnConstant, itemCount)->{
+            Number[] result = new Number[limit];
+            ArrayList<Integer> checkMarks = new ArrayList<Integer>();
+            int markNumber = r.nextInt(limit);
+            for(int n =0; n<itemCount; n++){
+                while(checkMarks.contains(markNumber)) markNumber = r.nextInt(limit);
+                checkMarks.add(markNumber);
+                result[markNumber] = supplier1.getAsDouble();
+            }  
+            for(int i=0; i<limit; i++)
+                if(!checkMarks.contains(i))
+                    if(returnConstant)
+                        result[i] = supplier2.getAsDouble();
+                    else
+                        result[i] = supplier3.getAsDouble();
+            return result;
+        };
         switch (tu.var.preLastNumber){
             // no diapazona [1; 30]
             case 0:
@@ -94,10 +131,27 @@ public class LastVarFactory {
                 case 0:
                 case 5:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                mk = (rowLength, r, returnConstant)->{
+                return alLeast1
+                .generate(
+                    //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                    () -> 1,
+                    () -> r.nextInt(30) + 1,
+                    () -> r.nextInt(30) + 1,
+                    rowLength,
+                    r,
+                    returnConstant,
+                    1
+                );
+                };
                 return;
                 // nekad, nevienā sacīkstē, neieņēma 1. vietu
                 case 1:
                 case 6:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(29) + 2, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
                 // visās sacīkstēs ieņēma vietu ne zemāku kā 10
@@ -130,53 +184,185 @@ public class LastVarFactory {
                 default:
                 return;
             }
+            // vērtībām 0; 1 vai 0.5
+            //  (0 - zaudējums, 1- uzvara, 0.5 - neatšķiras)
             case 2:
             case 3:
             switch (tu.var.lastNumber){
+                // nav neviena zaudējuma
                 case 0:
                 case 5:
+                mk = (rowLength, r, returnConstant)->{
+                    return doubleGen
+                    .generate(() -> r.nextInt(2)/2.+1, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // neuzvarēja nevienā no partijām
                 case 1:
                 case 6:
+                mk = (rowLength, r, returnConstant)->{
+                    return doubleGen
+                    .generate(() -> r.nextInt(2)/2., rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // uzvarēja minimums 3 reizes
                 case 2:
                 case 7:
+                mk = (rowLength, r, returnConstant)->{
+                    return alLeastnthDouble
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 1.,
+                        () -> 1.,
+                        () -> r.nextInt(3)/2.,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        3
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // ir ne vairāk kā 2 zaudējumi
+                //seit dažādi ģenerēs :)
                 case 3:
                 case 8:
+                mk = (rowLength, r, returnConstant)->{
+                    int numZaudejumi = r.nextInt(2)+1;
+                    return alLeastnthDouble
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 0.,
+                        () -> r.nextInt(2)/2.+1,
+                        () -> r.nextInt(2)/2.+1,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        numZaudejumi
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // ieguva minimums 2.5 punktus
                 case 4:
                 case 9:
+                mk = (rowLength, r, returnConstant)->{
+                    int chckRn = r.nextInt(2)+1;
+                    if(chckRn ==0)
+                    return alLeastnthDouble
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 1.,
+                        () -> r.nextInt(3)/2,
+                        () -> r.nextInt(3)/2,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        3
+                    );
+                    else
+                    return alLeastnthDouble
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 1.,
+                        () -> r.nextInt(2)/2.+1,
+                        () -> r.nextInt(2)/2.+1,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        2
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
                 default:
                 return;
             }
+            //  [-1; 20] 
+            // >0 soda punktu daudzums
+            // -1 nozīmē, ka jātnieks tika diskvalificēts par zirga nepaklausību,
+            // 0 - soda punktu nav, visi šķērsli ir veiksmīgi pārvarēti un laika ierobežojums nav pārsniegts).
+            // etaps = kolona
             case 4:
             case 5:
             switch (tu.var.lastNumber){
+                // vismaz vienā etapā nav neviena soda punkta.
+                // tātad nediskvalificēti? vai neviena punkta un diskval. arī der???
+                // es atstāju ka nediskvalificēti...
+                // ja arī diskvalificēti, tad 1. rindā 
+                // r.nextInt(2)-1
                 case 0:
                 case 5:
+                mk = (rowLength, r, returnConstant)->{
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> 0,
+                        () -> 0,
+                        () -> r.nextInt(22)-1,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // nevienu reizi netika diskvalificēti par zirga nepaklausību
                 case 1:
                 case 6:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(21), rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // vismaz vienu reizi tika diskvalificēti par zirga nepaklausību
                 case 2:
                 case 7:
+                mk = (rowLength, r, returnConstant)->{
+                    return alLeast1
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> -1,
+                        () -> -1,
+                        () -> r.nextInt(22)-1,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        1
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // visos etapos ir mazāk nekā 5 soda punkti un, kas
+                // nevienu reizi netika diskvalificēti
                 case 3:
                 case 8:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(5), rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
+                // tika diskvalificēti par zirga nepaklausību vismaz 2 reizes vai vairāk.
                 case 4:
                 case 9:
+                mk = (rowLength, r, returnConstant)->{
+                    return alLeastnth
+                    .generate(
+                        //AtLeastCondition, constantRest, non-constantRest, limit, r, isConstant or 1st row, howManyAtLeasts
+                        () -> -1,
+                        () -> -1,
+                        () -> r.nextInt(22)-1,
+                        rowLength,
+                        r,
+                        returnConstant,
+                        2
+                    );
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;
                 default:
