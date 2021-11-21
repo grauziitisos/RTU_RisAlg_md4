@@ -116,8 +116,16 @@ public class Md4_061rmc160OutputTests {
         runTest(getSimulatedUserInput(input + ""), ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
         MdVariant vart = new MdVariant(ObjectUnderTestName);
-        double[][] defaultArray = vart.getDefaultArray();
-        Boolean hasOutItems = output.length > 2 + defaultArray.length;
+        int rowCount = 0, length = 0;;
+        Num defaultArray = vart.getDefaultArray();
+        if(vart.preLastNumber == 2 || vart.preLastNumber == 3 ) {
+            rowCount = defaultArray.d.length;
+            length = defaultArray.d[0].length;
+        } else {
+            rowCount = defaultArray.i.length;
+            length = defaultArray.i[0].length;
+        }
+        Boolean hasOutItems = output.length > 2 + rowCount;
         int hadItemsCount = 0;
         // skip input mode for this test
         if (input == 1)
@@ -125,13 +133,13 @@ public class Md4_061rmc160OutputTests {
         String arrPattern = vart.getArrayOutputPattern();
         if (hasOutItems) {
             for (int i = 2; i < output.length; i++) {
-                if (hadItemsCount == defaultArray.length)
+                if (hadItemsCount == rowCount)
                     return;
                 if (hadItemsCount > 0) {
                     //allow whitespaces
                     assertTrue(output[i].trim().matches(arrPattern),
                             "Line number " + (i + 1) + System.getProperty("line.separator") + "Should output result: "
-                                    + vart.getDefaultArray()[0].length
+                                    + length
                                     + " numbers per line and number range required in specification!"
                                     + System.getProperty("line.separator") + "output was: " + output[i]
                                     + System.getProperty("line.separator"));
@@ -143,13 +151,13 @@ public class Md4_061rmc160OutputTests {
             }
             assertTrue(hadItemsCount >0,
                     "No properly formatted Array output lines found!! the array output should start at the third line outputted or later and have "
-                            + defaultArray[0].length + " rows of properly formatted results and match "+ vart.getArrayOutputPattern()+" regex ! Output had lines: "
+                            + rowCount + " rows of properly formatted results and match "+ vart.getArrayOutputPattern()+" regex ! Output had lines: "
                             + output.length + System.getProperty("line.separator") + "output was: "
                             + byteArrayOutputStream.toString() + System.getProperty("line.separator"));
         } else
             assertTrue(false,
                     "the array output should start at the third line outputted or later and have "
-                            + defaultArray[0].length + " rows of properly formatted results! Output had lines: "
+                            + rowCount + " rows of properly formatted results! Output had lines: "
                             + output.length + System.getProperty("line.separator") + "output was: "
                             + byteArrayOutputStream.toString() + System.getProperty("line.separator"));
     }
