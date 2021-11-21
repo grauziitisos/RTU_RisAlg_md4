@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.IntSupplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @FunctionalInterface
 interface strInstrOut {
@@ -17,7 +19,17 @@ interface strInstrOut {
 
 @FunctionalInterface
 interface markRowMaker {
-    public Number[] makeMarkRow(int rowLength, Random r) throws Exception;
+    public Number[] makeMarkRow(int rowLength, Random r, boolean returnConstant) throws Exception;
+}
+
+@FunctionalInterface
+interface uniformIntNumberGenerator {
+    public Number[] generate(IntSupplier supplier, int limit) throws Exception;
+}
+
+@FunctionalInterface
+interface atLeastnthIntNumberGenerator {
+    public Number[] generate(IntSupplier supplier1, IntSupplier supplier2, IntSupplier supplier3, int limit, Random r, boolean returnConstant) throws Exception;
 }
 
 public class LastVarFactory {
@@ -29,31 +41,74 @@ public class LastVarFactory {
     
     public void ExecTest() throws Exception{
         markRowMaker mk;
-        mk = (rowLength, r)->{
+        mk = (rowLength, r, returnConstant)->{
             Number[] result = new Number[rowLength];
             for(int i=0; i<rowLength; i++)
             result[i] = r.nextInt(251) + 250;
             return result;
         };
+        uniformIntNumberGenerator intGen= (supplier, limit)->{
+            return IntStream
+            .generate(supplier)
+            .limit(limit)
+            .boxed()
+            .toArray(Number[]::new);
+        };
+        atLeastnthIntNumberGenerator alLast1 =(supplier1, supplier2, supplier3, limit, r, returnConstant)->{
+            Number[] result = new Number[limit];
+            if(returnConstant) {
+                    int markNumber = r.nextInt(limit);
+                    result[markNumber] = supplier1.getAsInt();
+                    for(int i=0; i<limit; i++)
+                    if(i!=markNumber)
+                    result[i] = supplier2.getAsInt();
+            }else
+                for(int i=0; i<limit; i++)
+                result[i] = supplier3.getAsInt();
+                return result;
+        };
         switch (tu.var.preLastNumber){
+            // no diapazona [1; 30]
             case 0:
             case 1:
             switch (tu.var.lastNumber){
+                // vismaz vienā sacīkstē ieņēma 1. vietu
                 case 0:
                 case 5:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // nekad, nevienā sacīkstē, neieņēma 1. vietu
                 case 1:
                 case 6:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // visās sacīkstēs ieņēma vietu ne zemāku kā 10
                 case 2:
                 case 7:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(10)+1, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // visās sacīkstes ieņēma vietas, zemākas nekā 10
                 case 3:
                 case 8:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(21)+10, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                //  visās sacīkstēs ieņēma vietu ne zemāku kā 3
                 case 4:
                 case 9:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(3)+1, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 default:
                 return;
             }
@@ -63,18 +118,23 @@ public class LastVarFactory {
                 case 0:
                 case 5:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 1:
                 case 6:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 2:
                 case 7:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 3:
                 case 8:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 4:
                 case 9:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 default:
                 return;
             }
@@ -84,66 +144,183 @@ public class LastVarFactory {
                 case 0:
                 case 5:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 1:
                 case 6:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 2:
                 case 7:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 3:
                 case 8:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 case 4:
                 case 9:
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 default:
                 return;
             }
+            // no diapazona [10; 500]
             case 6:
             case 7:
             switch (tu.var.lastNumber){
+                // visās sacensības ieguva minimums 250 punktus
                 case 0:
                 case 5:
-                mk = (rowLength, r)->{
-                    Number[] result = new Number[rowLength];
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(251) + 250, rowLength);
+                };
+                shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // visās sacensības ieguva mazāk nekā 250 punktus
+                case 1:
+                case 6:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(240) + 10, rowLength);
+                };
+                shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // vismaz vienā no sacensībām ieguva minimums 250 punktus
+                case 2:
+                case 7:
+                mk = (rowLength, r, returnConstant)->{
+                Number[] result = new Number[rowLength];
+                if(returnConstant) {
+                        int markNumber = r.nextInt(rowLength);
+                        result[markNumber] = 250;
+                        for(int i=0; i<rowLength; i++)
+                        if(i!=markNumber)
+                        result[i] = r.nextInt(240)+10;
+                }else
                     for(int i=0; i<rowLength; i++)
-                    result[i] = r.nextInt(251) + 250;
+                    result[i] = r.nextInt(240) + 10;
                     return result;
                 };
                 shouldFulFillLastNumberRequirementsRunner(mk);
-                case 1:
-                case 6:
-                shouldFulFillLastNumberRequirementsRunner(mk);
-                case 2:
-                case 7:
-                shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // vismaz vienās sacensībās ieguva mazāk nekā 250 punktus
                 case 3:
                 case 8:
+                mk = (rowLength, r, returnConstant)->{
+                    Number[] result = new Number[rowLength];
+                    int markNumber = r.nextInt(rowLength);
+                    result[markNumber] = r.nextInt(240)+10;
+                            for(int i=0; i<rowLength; i++)
+                            if(i!=markNumber)
+                            if(returnConstant)
+                            result[i] = r.nextInt(251)+250;
+                            else
+                            result[i] = r.nextInt(491)+10;
+                        return result;
+                    };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                // vismaz divās sacensībās ieguva mazāk nekā 250 punktus.
                 case 4:
                 case 9:
+                mk = (rowLength, r, returnConstant)->{
+                    Number[] result = new Number[rowLength];
+                    int markNumber = r.nextInt(rowLength);
+                    int markNumber2 = r.nextInt(rowLength);
+                    while(markNumber == markNumber2) markNumber2 = r.nextInt(rowLength);
+                    result[markNumber] = r.nextInt(240)+10;
+                    result[markNumber2] = r.nextInt(240)+10;
+                            for(int i=0; i<rowLength; i++)
+                            if(i!=markNumber && i!=markNumber2)
+                            if(returnConstant)
+                            result[i] = r.nextInt(251)+250;
+                            else
+                            result[i] = r.nextInt(491)+10;
+                        return result;
+                    };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 default:
                 return;
             }
+            // no diapazona [0; 10].
             case 8:
             case 9:
             switch (tu.var.lastNumber){
+                //kam nav atzīmes mazākas par 5
                 case 0:
                 case 5:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(6) + 5, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                //could merge all the "at least one" in one general function...
+                //kas nenokārtoja vismaz vienu eksāmenu.
                 case 1:
                 case 6:
+                mk = (rowLength, r, returnConstant)->{
+                    Number[] result = new Number[rowLength];
+                    int markNumber = r.nextInt(rowLength);
+                    result[markNumber] = r.nextInt(4);
+                            for(int i=0; i<rowLength; i++)
+                            if(i!=markNumber)
+                            if(returnConstant)
+                            result[i] = r.nextInt(4);
+                            else
+                            result[i] = r.nextInt(11);
+                        return result;
+                    };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                //kas saņēma vismaz vienu atzīmi 10
                 case 2:
                 case 7:
+                mk = (rowLength, r, returnConstant)->{
+                    Number[] result = new Number[rowLength];
+                    int markNumber = r.nextInt(rowLength);
+                    result[markNumber] = 10;
+                            for(int i=0; i<rowLength; i++)
+                            if(i!=markNumber)
+                            result[i] = r.nextInt(11);
+                        return result;
+                    };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                //kas nenokārtoja vismaz 3 eksāmenus
                 case 3:
                 case 8:
+                mk = (rowLength, r, returnConstant)->{
+                    Number[] result = new Number[rowLength];
+                    int markNumber = r.nextInt(rowLength);
+                    int markNumber2 = r.nextInt(rowLength);
+                    int markNumber3 = r.nextInt(rowLength);
+                    while(markNumber == markNumber2) markNumber2 = r.nextInt(rowLength);
+                    while(markNumber3 == markNumber2 || markNumber == markNumber3) markNumber3 = r.nextInt(rowLength);
+                    result[markNumber] = r.nextInt(4);
+                    result[markNumber2] = r.nextInt(4);
+                    result[markNumber3] = r.nextInt(4);
+                            for(int i=0; i<rowLength; i++)
+                            if(i!=markNumber && i!=markNumber2 && i!=markNumber3)
+                            if(returnConstant)
+                            result[i] = r.nextInt(4);
+                            else
+                            result[i] = r.nextInt(11);
+                        return result;
+                    };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
+                //kam nav atzīmes zemākas par 9
                 case 4:
                 case 9:
+                mk = (rowLength, r, returnConstant)->{
+                    return intGen
+                    .generate(() -> r.nextInt(2) + 9, rowLength);
+                };
                 shouldFulFillLastNumberRequirementsRunner(mk);
+                return;
                 default:
                 return;
             }
@@ -161,9 +338,10 @@ public class LastVarFactory {
         for(int n =0; n<mrkCnt; n++){
             while(checkRows.contains(cRow)) cRow = r.nextInt(defaultArray.length);
             checkRows.add(cRow);
+            if(n==0) defaultArray[cRow] = mk.makeMarkRow(defaultArray[0].length, r, true);
+            else defaultArray[cRow] = mk.makeMarkRow(defaultArray[0].length, r, false);
         }
-        for(int j : checkRows)
-            defaultArray[j] = mk.makeMarkRow(defaultArray[0].length, r);
+            
         StringBuilder sb = new StringBuilder();
         for(int i=0; i<defaultArray.length; i++){
         sb = TestUtils.join(sb, " ", defaultArray[i]);
