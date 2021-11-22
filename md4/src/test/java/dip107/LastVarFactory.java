@@ -168,7 +168,7 @@ public class LastVarFactory {
                 case 8:
                 mk = (rowLength, r, returnConstant)->{
                     return intGen
-                    .generate(() -> r.nextInt(21)+10, rowLength);
+                    .generate(() -> r.nextInt(20)+11, rowLength);
                 };
                 shouldFulFillLastNumberRequirementsRunner(mk);
                 return;

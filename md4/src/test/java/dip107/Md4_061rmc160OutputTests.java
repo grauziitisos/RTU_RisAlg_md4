@@ -19,6 +19,8 @@ public class Md4_061rmc160OutputTests {
     private ByteArrayOutputStream byteArrayOutputStream;
     private String ObjectUnderTestName = "dip107.Md4_061rmc160";
     private String WrongInputErrorMessage = "input-output error";
+	private MdVariant var = new MdVariant(ObjectUnderTestName);
+	private TestUtils tu = new TestUtils(var);
 
     @Test
     public void shouldHaveClassNamed() throws Exception {
@@ -42,14 +44,14 @@ public class Md4_061rmc160OutputTests {
     }
 
     @ParameterizedTest
-    @ValueSource(floats = { 1, 2, 3 })
-    public void shouldPrintNumberPrompt(float input) throws Exception {
+    @ValueSource(ints = { 1, 2, 3 })
+    public void shouldPrintNumberPrompt(int input) throws Exception {
         byteArrayOutputStream = new ByteArrayOutputStream();
         runTest(getSimulatedUserInput(input + ""), ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
         Boolean hasOutItem = output.length > 1;
         if (hasOutItem)
-            assertEquals("Kā aizpildīt masīvu (1, 2 vai 3)?", output[1]);
+            assertEquals("Kā aizpildīt masīvu (1, 2 vai 3)?", output[1].trim());
         else
             assertTrue(false,
                     "the filling mode prompt should be the second line outputted! Output had lines: " + output.length);
@@ -165,9 +167,13 @@ public class Md4_061rmc160OutputTests {
         byteArrayOutputStream = new ByteArrayOutputStream();
         runTest(getSimulatedUserInput(input + ""), ObjectUnderTestName);
         String[] output = byteArrayOutputStream.toString().split(System.getProperty("line.separator"));
-        if (output.length > 1)
+        if (output.length > 1) {
+        	int errMsgIndex = output[output.length - 1].indexOf(WrongInputErrorMessage);
+        	assertTrue(errMsgIndex > -1, "Last line should contain '"+WrongInputErrorMessage+"'");
+        	if(errMsgIndex == 0)
             assertEquals(WrongInputErrorMessage, output[output.length - 1],
                     "on error should output '"+WrongInputErrorMessage+"'");
+        }
         else
             assertTrue(false, "the program should output at least one line! Output had lines: " + output.length);
     }
@@ -182,9 +188,10 @@ public class Md4_061rmc160OutputTests {
         String t =input+System.getProperty("line.separator");
         if(input == 1){
             t+= System.getProperty("line.separator");
-            Random r = new Random(1200);
-            for(int i=0; i<5*8; i++)
-                t+= g(r)+System.getProperty("line.separator");
+            Number[][] arr = tu.getArrSource(1);
+            for(int i=0; i<arr.length; i++)
+            	for(int j=0; j<arr[0].length; j++)
+                t+= arr[i][j]+System.getProperty("line.separator");
         }
         return t;
     }
